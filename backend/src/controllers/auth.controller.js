@@ -2,7 +2,6 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 
-
 export const signup = async (req, res) => {
     const { fullName, email, password } = req.body;
     try {
@@ -28,6 +27,9 @@ export const signup = async (req, res) => {
         });
 
         if (newUser) {
+            // ✅ Update lastActiveAt when signing up
+            newUser.lastActiveAt = Date.now();
+
             // generate jwt token here
             generateToken(newUser._id, res);
             await newUser.save();
@@ -61,6 +63,10 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
+        // ✅ Update lastActiveAt on successful login
+        user.lastActiveAt = Date.now();
+        await user.save({ validateBeforeSave: false });
+
         generateToken(user._id, res);
 
         res.status(200).json({
@@ -84,8 +90,6 @@ export const logout = (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
-
-
 
 export const checkAuth = (req, res) => {
     try {
