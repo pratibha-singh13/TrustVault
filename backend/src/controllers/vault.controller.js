@@ -1,4 +1,5 @@
 import Vault from '../models/vault.model.js';
+import TrustedContact from '../models/trustedContacts.model.js';
 import { encryptContent } from '../utils/encryption.js';
 
 export const createVault = async (req, res) => {
@@ -9,10 +10,20 @@ export const createVault = async (req, res) => {
             return res.status(400).json({ message: 'Title and content are required.' });
         }
 
+        // Validate that all trusted contact IDs belong to the logged-in user (owner)
+        const validContacts = await TrustedContact.find({
+            _id: { $in: trustedContacts },
+            owner: req.user._id
+        });
+
+        if (validContacts.length !== trustedContacts.length) {
+            return res.status(400).json({ message: 'One or more trusted contacts are invalid or do not belong to you.' });
+        }
+
         const encrypted = encryptContent(content);
 
         const newVault = await Vault.create({
-            user: req.user._id, // from auth middleware
+            user: req.user._id,
             title,
             content: encrypted,
             category,
@@ -28,3 +39,5 @@ export const createVault = async (req, res) => {
         res.status(500).json({ message: 'Something went wrong.' });
     }
 };
+//6803c23627ed18eea17fbb5c
+//6803c29027ed18eea17fbb60

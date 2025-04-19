@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema(
             type: Date,
             default: Date.now,
         },
+        inactivityDurationDays: {
+            type: Number,
+            default: 30, // Set default inactivity threshold to 30 days
+        },
     },
     { timestamps: true }
 );

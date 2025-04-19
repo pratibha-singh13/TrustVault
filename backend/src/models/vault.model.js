@@ -11,7 +11,7 @@ const vaultSchema = new mongoose.Schema({
         required: true,
     },
     content: {
-        type: String, // encrypted string
+        type: String, // Encrypted string
         required: true,
     },
     category: {
@@ -21,7 +21,7 @@ const vaultSchema = new mongoose.Schema({
     },
     trustedContacts: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'TrustedContact' // Reference to the other model
     }],
     isPrivate: {
         type: Boolean,
