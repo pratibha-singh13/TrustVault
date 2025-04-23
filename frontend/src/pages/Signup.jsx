@@ -1,11 +1,13 @@
-// Signup.jsx or SignIn.jsx
-import React from 'react';
+import React, { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Signup = () => {
+    const [showPassword, setShowPassword] = useState(false);
+
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
-            <div className="bg-white/10 dark:bg-white/5 backdrop-blur-md rounded-xl shadow-xl p-8 w-full max-w-md text-gray-900 dark:text-gray-100">
-                <h2 className="text-3xl font-semibold mb-6 text-center">Create an Account</h2>
+        <div className="h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4">
+            <div className="w-full max-w-md bg-white/10 dark:bg-white/5 backdrop-blur-md rounded-2xl shadow-xl p-8 text-gray-900 dark:text-gray-100">
+                <h2 className="text-3xl font-bold mb-6 text-center">Create Account</h2>
 
                 <form className="space-y-5">
                     <div>
@@ -20,12 +22,21 @@ const Signup = () => {
 
                     <div>
                         <label className="block text-sm font-medium mb-1" htmlFor="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            className="w-full px-4 py-2 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="••••••••"
-                        />
+                        <div className="relative">
+                            <input
+                                type={showPassword ? 'text' : 'password'}
+                                id="password"
+                                className="w-full px-4 py-2 pr-10 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="••••••••"
+                            />
+                            <button
+                                type="button"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
 
                     <button
@@ -38,9 +49,7 @@ const Signup = () => {
 
                 <p className="mt-4 text-sm text-center">
                     Already have an account?{' '}
-                    <a href="/login" className="text-blue-500 hover:underline">
-                        Log In
-                    </a>
+                    <a href="/login" className="text-blue-400 hover:underline">Log In</a>
                 </p>
             </div>
         </div>
