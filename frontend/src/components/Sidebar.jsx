@@ -1,7 +1,6 @@
-// Sidebar.jsx
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaHome, FaUserAlt, FaVault, FaCog } from "react-icons/fa";
+import { FaHome, FaUserAlt, FaLock, FaCog } from "react-icons/fa"; // ✅ FaVault → FaLock
 
 const Sidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -37,7 +36,7 @@ const Sidebar = () => {
                             to="/my-vault"
                             className="flex items-center py-3 px-4 text-lg hover:bg-[#2d3748] transition-all"
                         >
-                            <FaVault className="mr-2" />
+                            <FaLock className="mr-2" /> {/* 👈 Updated icon */}
                             {!isCollapsed && "My Vault"}
                         </Link>
                         <Link

@@ -1,5 +1,5 @@
-// App.jsx
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// App.jsx ✅ No Router here
+import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
@@ -11,19 +11,17 @@ import Settings from "./pages/Settings";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="my-vault" element={<MyVault />} />
-          <Route path="trusted-contacts" element={<TrustedContacts />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/dashboard" element={<Layout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="my-vault" element={<MyVault />} />
+        <Route path="trusted-contacts" element={<TrustedContacts />} />
+        <Route path="settings" element={<Settings />} />
+      </Route>
+    </Routes>
   );
 }
 
