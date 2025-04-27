@@ -1,25 +1,34 @@
 import nodemailer from "nodemailer";
 
+// Create a transporter using Brevo's SMTP settings
 const transporter = nodemailer.createTransport({
-    service: "Gmail",
+    host: 'smtp-relay.brevo.com',
+    port: 587,  // Use port 587 for TLS
+    secure: false,  // Use TLS
     auth: {
-        user: process.env.SMTP_EMAIL,
-        pass: process.env.SMTP_PASSWORD,
+        user: process.env.SMTP_EMAIL,  // Use the SMTP email from the .env file
+        pass: process.env.SMTP_PASSWORD,  // Use the SMTP password from the .env file
     },
 });
 
+// Function to send an email
 export const sendInactivityEmail = async (to, fullName) => {
     const mailOptions = {
         from: `"TrustVault" <${process.env.SMTP_EMAIL}>`,
         to,
         subject: "Still there? We noticed you're inactive",
         html: `
-      <h2>Hello ${fullName},</h2>
-      <p>We've noticed you haven't been active on TrustVault.</p>
-      <p>Please log in to confirm you're okay. Otherwise, your vault entries may be released to your trusted contacts after a set duration.</p>
-      <p>Stay safe,<br>TrustVault Team</p>
-    `,
+            <h2>Hello ${fullName},</h2>
+            <p>We've noticed you haven't been active on TrustVault.</p>
+            <p>Please log in to confirm you're okay. Otherwise, your vault entries may be released to your trusted contacts after a set duration.</p>
+            <p>Stay safe,<br>TrustVault Team</p>
+        `,
     };
 
-    await transporter.sendMail(mailOptions);
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`📧 Sent inactivity warning to ${to}`);
+    } catch (error) {
+        console.error("❌ Error sending inactivity email:", error.message);
+    }
 };

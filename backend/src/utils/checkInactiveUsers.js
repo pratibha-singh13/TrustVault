@@ -1,7 +1,8 @@
-// utils/checkInactiveUsers.js
-import User from "../models/user.model.js"; // Import User model
+import User from "../models/user.model.js";
+import { sendInactivityEmail, sendVaultReleaseEmailToTrustedContacts } from "./emailService.js"; // Import email functions
 
-const checkInactiveUsers = async (inactivityThresholdDays) => {
+// This function checks for inactive users and returns the ones who need warnings or vault release notifications
+const checkInactiveUsers = async (inactivityThresholdDays, warningThresholdDays) => {
     const now = new Date();
     const thresholdDate = new Date(now - inactivityThresholdDays * 24 * 60 * 60 * 1000); // Calculate inactivity threshold
 
@@ -9,11 +10,27 @@ const checkInactiveUsers = async (inactivityThresholdDays) => {
         // Find all inactive users based on lastActiveAt
         const inactiveUsers = await User.find({ lastActiveAt: { $lt: thresholdDate } });
 
-        // Return an array of inactive users, even if it's empty
-        return inactiveUsers || [];  // If no inactive users, return an empty array
+        const usersToNotify = [];
+
+        for (const user of inactiveUsers) {
+            const inactivityDuration = (now - new Date(user.lastActiveAt)) / (1000 * 60 * 60 * 24); // In days
+
+            // If the user is inactive for more than the warning threshold, add them to the list to notify
+            if (inactivityDuration >= warningThresholdDays) {
+                usersToNotify.push({
+                    email: user.email,
+                    fullName: user.fullName,
+                    daysInactive: inactivityDuration, // Track inactivity duration for release notifications
+                    _id: user._id,
+                });
+            }
+        }
+
+        return usersToNotify;
+
     } catch (error) {
         console.error("❌ Error fetching inactive users:", error.message);
-        return []; // Return an empty array in case of any error
+        return [];
     }
 };
 
