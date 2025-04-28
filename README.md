@@ -1,2 +1,2 @@
 ﻿# TrustVault
-#TrustVault is a PWA to manage digital assets. 
+#TrustVault is a PWA(Progressive Web App) to manage your digital assets. 
