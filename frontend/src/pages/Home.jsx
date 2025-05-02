@@ -5,7 +5,7 @@ export default function HomePage() {
     return (
         <main className="min-h-screen flex items-center justify-center bg-[#f0f4f8] dark:bg-[#0f172a] px-4 py-12">
             <motion.div
-                //initial={{ opacity: 0, y: 401 }}
+                initial={{ opacity: 0, y: 401 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
                 className="max-w-4xl w-full flex flex-col-reverse lg:flex-row items-center justify-between gap-10"

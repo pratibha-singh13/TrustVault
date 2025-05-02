@@ -17,6 +17,7 @@ export const sendInactivityEmail = async (to, fullName) => {
         from: `"TrustVault" <${process.env.SMTP_EMAIL}>`,
         to,
         subject: "Still there? We noticed you're inactive",
+        text: `Hello ${fullName},\n\nWe've noticed you haven't been active on TrustVault.\nPlease log in to confirm you're okay. Otherwise, your vault entries may be released to your trusted contacts after a set duration.\n\nStay safe,\nTrustVault Team`,
         html: `
             <h2>Hello ${fullName},</h2>
             <p>We've noticed you haven't been active on TrustVault.</p>
@@ -29,6 +30,6 @@ export const sendInactivityEmail = async (to, fullName) => {
         await transporter.sendMail(mailOptions);
         console.log(`📧 Sent inactivity warning to ${to}`);
     } catch (error) {
-        console.error("❌ Error sending inactivity email:", error.message);
+        console.error("❌ Error sending inactivity email:", error);
     }
 };

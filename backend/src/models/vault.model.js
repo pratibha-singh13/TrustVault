@@ -9,6 +9,7 @@ const vaultSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
+        maxlength: 100 // Limit the title length
     },
     content: {
         type: String, // Encrypted string
@@ -29,7 +30,8 @@ const vaultSchema = new mongoose.Schema({
     },
     releaseAfterDays: {
         type: Number,
-        default: 30
+        default: 30,
+        min: 1 // Ensure positive values
     },
     isReleased: {
         type: Boolean,
@@ -40,5 +42,9 @@ const vaultSchema = new mongoose.Schema({
         default: Date.now
     }
 }, { timestamps: true });
+
+// Add indexes for better query performance
+vaultSchema.index({ user: 1 });
+vaultSchema.index({ isPrivate: 1 });
 
 export default mongoose.model('Vault', vaultSchema);
