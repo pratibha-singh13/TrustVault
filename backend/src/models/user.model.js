@@ -22,11 +22,20 @@ const userSchema = new mongoose.Schema(
         },
         lastActiveAt: {
             type: Date,
-            default: Date.now,
+            default: Date.now, // Tracks the last activity date
         },
-        inactivityDurationDays: {
+        inactivityThresholdDays: {
             type: Number,
-            default: 30, // Set default inactivity threshold to 30 days
+            default: 30, // Default inactivity threshold if the user doesn't set one
+            min: 1,
+        },
+        warningCount: {
+            type: Number,
+            default: 0, // Tracks the number of warnings sent
+        },
+        isVaultReleased: {
+            type: Boolean,
+            default: false, // Tracks if the user's vaults have been released
         },
     },
     { timestamps: true }

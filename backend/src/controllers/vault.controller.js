@@ -27,7 +27,7 @@ export const createVault = async (req, res) => {
             title,
             content: encrypted,
             category,
-            trustedContacts,
+            trustedContacts: validContacts.map(contact => contact._id), // Populate with valid contact IDs
             isPrivate,
             releaseAfterDays,
             lastConfirmedAt: new Date()

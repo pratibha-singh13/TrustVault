@@ -35,11 +35,11 @@ const vaultSchema = new mongoose.Schema({
     },
     isReleased: {
         type: Boolean,
-        default: false
+        default: false // Tracks if the vault has been released
     },
     lastConfirmedAt: {
         type: Date,
-        default: Date.now
+        default: Date.now // Tracks the last confirmation date
     }
 }, { timestamps: true });
 

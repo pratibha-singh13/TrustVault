@@ -1,6 +1,5 @@
 import User from "../models/user.model.js";
 import { subDays, differenceInDays } from "date-fns"; // Use date-fns for better date handling
-import { sendInactivityEmail, sendVaultReleaseEmailToTrustedContacts } from "./emailService.js"; // Import email functions
 
 // This function checks for inactive users and returns the ones who need warnings or vault release notifications
 const checkInactiveUsers = async (inactivityThresholdDays, warningThresholdDays) => {
@@ -8,10 +7,17 @@ const checkInactiveUsers = async (inactivityThresholdDays, warningThresholdDays)
     const thresholdDate = subDays(now, inactivityThresholdDays); // Calculate inactivity threshold
 
     try {
+        console.log(`🔍 Threshold Date: ${thresholdDate}`);
+
         // Find all inactive users based on lastActiveAt
         const inactiveUsers = await User.find({ lastActiveAt: { $lt: thresholdDate } });
 
-        console.log(`✅ Found ${inactiveUsers.length} inactive users.`);
+        if (inactiveUsers.length === 0) {
+            console.log("✅ No inactive users found.");
+            return [];
+        }
+
+        console.log(`✅ Found ${inactiveUsers.length} inactive users. Emails: ${inactiveUsers.map(u => u.email).join(", ")}`);
 
         const usersToNotify = [];
 
@@ -26,6 +32,7 @@ const checkInactiveUsers = async (inactivityThresholdDays, warningThresholdDays)
                     daysInactive: inactivityDuration, // Track inactivity duration for release notifications
                     _id: user._id,
                 });
+                console.log(`📧 User ${user.email} has been inactive for ${inactivityDuration} days.`);
             }
         }
 
@@ -34,7 +41,7 @@ const checkInactiveUsers = async (inactivityThresholdDays, warningThresholdDays)
 
     } catch (error) {
         console.error("❌ Error fetching inactive users:", error);
-        return [];
+        throw new Error("Error fetching inactive users: " + error.message);
     }
 };
 

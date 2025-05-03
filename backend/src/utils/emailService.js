@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Function to send an email
+// Function to send an inactivity warning email
 export const sendInactivityEmail = async (to, fullName) => {
     const mailOptions = {
         from: `"TrustVault" <${process.env.SMTP_EMAIL}>`,
@@ -31,5 +31,36 @@ export const sendInactivityEmail = async (to, fullName) => {
         console.log(`📧 Sent inactivity warning to ${to}`);
     } catch (error) {
         console.error("❌ Error sending inactivity email:", error);
+    }
+};
+
+// Function to notify trusted contacts when a vault is released
+export const sendVaultReleaseEmailToTrustedContacts = async (vault, user) => {
+    const trustedContacts = await TrustedContact.find({ _id: { $in: vault.trustedContacts } });
+
+    for (const contact of trustedContacts) {
+        if (!contact.contactEmail || !contact.contactName) {
+            console.error(`❌ Invalid trusted contact: ${JSON.stringify(contact)}`);
+            continue;
+        }
+
+        const mailOptions = {
+            from: `"TrustVault" <${process.env.SMTP_EMAIL}>`,
+            to: contact.contactEmail,
+            subject: `Vault Released: ${vault.title}`,
+            text: `Hello ${contact.contactName},\n\nThe vault "${vault.title}" from ${user.fullName} has been released to you.\n\nStay safe,\nTrustVault Team`,
+            html: `
+                <h2>Hello ${contact.contactName},</h2>
+                <p>The vault "<strong>${vault.title}</strong>" from ${user.fullName} has been released to you.</p>
+                <p>Stay safe,<br>TrustVault Team</p>
+            `,
+        };
+
+        try {
+            await transporter.sendMail(mailOptions);
+            console.log(`📧 Vault release notification sent to ${contact.contactEmail}`);
+        } catch (error) {
+            console.error(`❌ Error sending vault release email to ${contact.contactEmail}:`, error);
+        }
     }
 };
