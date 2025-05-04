@@ -1,12 +1,18 @@
 import nodemailer from "nodemailer";
-
+import TrustedContact from "../models/trustedContacts.model.js";
+import dotenv from "dotenv";
+dotenv.config();
 // Create a transporter using Brevo's SMTP settings
+console.log("SMTP_HOST:", process.env.SMTP_HOST);
+console.log("SMTP_LOGIN:", process.env.SMTP_LOGIN);
+console.log("SMTP_EMAIL:", process.env.SMTP_EMAIL);
+console.log("SMTP_PASSWORD:", process.env.SMTP_PASSWORD);
 const transporter = nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
+    host: process.env.SMTP_HOST,
     port: 587,  // Use port 587 for TLS
     secure: false,  // Use TLS
     auth: {
-        user: process.env.SMTP_EMAIL,  // Use the SMTP email from the .env file
+        user: process.env.SMTP_LOGIN,  // Use the SMTP email from the .env file
         pass: process.env.SMTP_PASSWORD,  // Use the SMTP password from the .env file
     },
 });

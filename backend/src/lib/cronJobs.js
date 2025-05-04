@@ -2,16 +2,20 @@ import cron from "node-cron";
 import checkInactiveUsers from "../utils/checkInactiveUsers.js"; // Import the function
 import { sendInactivityEmail, sendVaultReleaseEmailToTrustedContacts } from "../utils/emailService.js"; // Import email functions
 import Vault from "../models/vault.model.js"; // Import the Vault model
+import TrustedContact from "../models/trustedContacts.model.js"; // Import the TrustedContact model
+
+console.log("🔍 TrustedContact model loaded:", TrustedContact); // Debug log
 
 // Set the inactivity threshold (in days)
 const INACTIVITY_THRESHOLD_DAYS = 30; // Default inactivity threshold
 const WARNING_THRESHOLD_DAYS = 7; // Default warning threshold
 
 export const startInactivityCheck = () => {
-    cron.schedule("* * * * *", async () => {
+    cron.schedule("* * * * *", async () => { // Runs every minute for testing
         try {
             console.log("🔄 Running inactivity check...");
 
+            // Fetch inactive users
             const inactiveUsers = await checkInactiveUsers(INACTIVITY_THRESHOLD_DAYS, WARNING_THRESHOLD_DAYS);
 
             if (!Array.isArray(inactiveUsers) || inactiveUsers.length === 0) {
@@ -41,6 +45,16 @@ export const startInactivityCheck = () => {
                             continue;
                         }
 
+                        // Fetch trusted contact details
+                        const trustedContacts = await TrustedContact.find({ _id: { $in: vault.trustedContacts } });
+                        console.log(`🔍 Trusted Contacts for Vault "${vault.title}":`, trustedContacts);
+
+                        if (trustedContacts.length === 0) {
+                            console.log(`⚠️ No valid trusted contacts found for vault "${vault.title}".`);
+                            continue;
+                        }
+
+                        // Send release emails to trusted contacts
                         await sendVaultReleaseEmailToTrustedContacts(vault, user);
                         vault.isReleased = true; // Mark the vault as released
                         await vault.save();
