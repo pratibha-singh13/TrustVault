@@ -33,6 +33,9 @@ const userSchema = new mongoose.Schema(
             type: Number,
             default: 0, // Tracks the number of warnings sent
         },
+        lastWarningSentAt: {
+            type: Date, // Tracks the last warning email sent
+        },
         isVaultReleased: {
             type: Boolean,
             default: false, // Tracks if the user's vaults have been released

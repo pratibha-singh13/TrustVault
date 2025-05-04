@@ -1,21 +1,21 @@
 import cron from "node-cron";
-import checkInactiveUsers from "../utils/checkInactiveUsers.js"; // Import the function
-import { sendInactivityEmail, sendVaultReleaseEmailToTrustedContacts } from "../utils/emailService.js"; // Import email functions
-import Vault from "../models/vault.model.js"; // Import the Vault model
-import TrustedContact from "../models/trustedContacts.model.js"; // Import the TrustedContact model
+import checkInactiveUsers from "../utils/checkInactiveUsers.js";
+import { sendInactivityEmail, sendVaultReleaseEmailToTrustedContacts } from "../utils/emailService.js";
+import Vault from "../models/vault.model.js";
+import TrustedContact from "../models/trustedContacts.model.js";
 
-console.log("🔍 TrustedContact model loaded:", TrustedContact); // Debug log
+console.log("Cron module loaded:", cron); // Debug log to verify cron import
+console.log("🔍 TrustedContact model loaded:", TrustedContact);
 
-// Set the inactivity threshold (in days)
-const INACTIVITY_THRESHOLD_DAYS = 30; // Default inactivity threshold
-const WARNING_THRESHOLD_DAYS = 7; // Default warning threshold
+const INACTIVITY_THRESHOLD_DAYS = 30;
+const WARNING_THRESHOLD_DAYS = 7;
 
 export const startInactivityCheck = () => {
+    console.log("⏳ Starting inactivity check cron job...");
     cron.schedule("* * * * *", async () => { // Runs every minute for testing
         try {
             console.log("🔄 Running inactivity check...");
 
-            // Fetch inactive users
             const inactiveUsers = await checkInactiveUsers(INACTIVITY_THRESHOLD_DAYS, WARNING_THRESHOLD_DAYS);
 
             if (!Array.isArray(inactiveUsers) || inactiveUsers.length === 0) {
@@ -24,13 +24,11 @@ export const startInactivityCheck = () => {
             }
 
             for (const user of inactiveUsers) {
-                // Send inactivity warning email
                 if (user.daysInactive <= WARNING_THRESHOLD_DAYS) {
                     await sendInactivityEmail(user.email, user.fullName);
                     console.log(`📧 Sent inactivity warning to ${user.email}`);
                 }
 
-                // Release vaults if the user exceeds the warning threshold
                 if (user.daysInactive > WARNING_THRESHOLD_DAYS) {
                     const vaults = await Vault.find({ user: user._id, isReleased: false, isPrivate: false });
 
@@ -45,7 +43,6 @@ export const startInactivityCheck = () => {
                             continue;
                         }
 
-                        // Fetch trusted contact details
                         const trustedContacts = await TrustedContact.find({ _id: { $in: vault.trustedContacts } });
                         console.log(`🔍 Trusted Contacts for Vault "${vault.title}":`, trustedContacts);
 
@@ -54,9 +51,8 @@ export const startInactivityCheck = () => {
                             continue;
                         }
 
-                        // Send release emails to trusted contacts
                         await sendVaultReleaseEmailToTrustedContacts(vault, user);
-                        vault.isReleased = true; // Mark the vault as released
+                        vault.isReleased = true;
                         await vault.save();
                         console.log(`📧 Sent vault release notification for vault "${vault.title}" to trusted contacts.`);
                     }

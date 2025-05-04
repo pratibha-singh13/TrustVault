@@ -1,15 +1,14 @@
 import User from "../models/user.model.js";
-import { subDays, differenceInDays } from "date-fns"; // Use date-fns for better date handling
+import { subDays, differenceInDays } from "date-fns";
 
-// This function checks for inactive users and returns the ones who need warnings or vault release notifications
-const checkInactiveUsers = async (inactivityThresholdDays, warningThresholdDays) => {
+const checkInactiveUsers = async (inactivityThresholdDays, warningIntervals) => {
     const now = new Date();
-    const thresholdDate = subDays(now, inactivityThresholdDays); // Calculate inactivity threshold
+    const thresholdDate = subDays(now, inactivityThresholdDays);
 
     try {
         console.log(`🔍 Threshold Date: ${thresholdDate}`);
 
-        // Find all inactive users based on lastActiveAt
+        // Find all inactive users
         const inactiveUsers = await User.find({ lastActiveAt: { $lt: thresholdDate } });
 
         if (inactiveUsers.length === 0) {
@@ -20,25 +19,26 @@ const checkInactiveUsers = async (inactivityThresholdDays, warningThresholdDays)
         console.log(`✅ Found ${inactiveUsers.length} inactive users. Emails: ${inactiveUsers.map(u => u.email).join(", ")}`);
 
         const usersToNotify = [];
+        const usersToReleaseVaults = [];
 
         for (const user of inactiveUsers) {
-            const inactivityDuration = differenceInDays(now, new Date(user.lastActiveAt)); // In days
+            const inactivityDuration = differenceInDays(now, new Date(user.lastActiveAt));
 
-            // If the user is inactive for more than the warning threshold, add them to the list to notify
-            if (inactivityDuration >= warningThresholdDays) {
-                usersToNotify.push({
-                    email: user.email,
-                    fullName: user.fullName,
-                    daysInactive: inactivityDuration, // Track inactivity duration for release notifications
-                    _id: user._id,
-                });
-                console.log(`📧 User ${user.email} has been inactive for ${inactivityDuration} days.`);
+            // Check if the user needs a warning email
+            if (user.warningCount < warningIntervals.length) {
+                const nextWarningThreshold = warningIntervals[user.warningCount];
+                if (inactivityDuration >= nextWarningThreshold) {
+                    usersToNotify.push(user);
+                }
+            }
+
+            // Check if the vault needs to be released
+            if (inactivityDuration >= inactivityThresholdDays) {
+                usersToReleaseVaults.push(user);
             }
         }
 
-        console.log(`✅ ${usersToNotify.length} users need to be notified.`);
-        return usersToNotify;
-
+        return { usersToNotify, usersToReleaseVaults };
     } catch (error) {
         console.error("❌ Error fetching inactive users:", error);
         throw new Error("Error fetching inactive users: " + error.message);
