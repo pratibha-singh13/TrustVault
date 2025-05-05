@@ -1,32 +1,52 @@
-// src/pages/MyVault.jsx
-import React from "react";
-import { motion } from "framer-motion";
-import { RiSafeLine } from "react-icons/ri"; // ✅ Imported a valid vault icon
+import React, { useEffect, useState } from "react";
 
 const MyVault = () => {
+    const [vaultEntries, setVaultEntries] = useState([]);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const fetchVaultEntries = async () => {
+            try {
+                const response = await fetch("http://localhost:5000/api/vaults", {
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    const { message } = await response.json();
+                    setError(message);
+                    return;
+                }
+
+                const data = await response.json();
+                setVaultEntries(data);
+            } catch (err) {
+                setError("Failed to fetch vault entries.");
+            }
+        };
+
+        fetchVaultEntries();
+    }, []);
+
+    if (error) {
+        return <p className="text-red-500">{error}</p>;
+    }
+
+    if (!vaultEntries.length) {
+        return <p>No vault entries found.</p>;
+    }
+
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="min-h-screen p-6 bg-[#f9f5ff] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100"
-        >
-            <h1 className="text-3xl font-bold mb-6 text-purple-700 dark:text-purple-300 flex items-center gap-2">
-                <RiSafeLine className="text-purple-500 dark:text-purple-300" />
-                My Vault
-            </h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3].map((item) => (
-                    <div
-                        key={item}
-                        className="bg-white dark:bg-slate-800 shadow-lg rounded-xl p-4 hover:scale-105 transition-transform cursor-pointer"
-                    >
-                        <h2 className="text-xl font-semibold mb-2">Asset {item}</h2>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">Details about the asset.</p>
-                    </div>
+        <div className="p-6">
+            <h1 className="text-2xl font-bold">My Vault</h1>
+            <ul className="mt-4 space-y-2">
+                {vaultEntries.map((entry) => (
+                    <li key={entry.id} className="p-4 bg-gray-100 rounded-lg">
+                        <h2 className="text-lg font-semibold">{entry.title}</h2>
+                        <p>{entry.description}</p>
+                    </li>
                 ))}
-            </div>
-        </motion.div>
+            </ul>
+        </div>
     );
 };
 

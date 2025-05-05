@@ -1,44 +1,79 @@
-// src/pages/TrustedContacts.jsx
-import React from "react";
-import { motion } from "framer-motion";
-import { FaUserShield } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
 
 const TrustedContacts = () => {
-    const contacts = [
-        { name: "John Doe", email: "john@example.com" },
-        { name: "Jane Smith", email: "jane@example.com" },
-    ];
+    const [contacts, setContacts] = useState([]);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const fetchContacts = async () => {
+            try {
+                const response = await fetch("http://localhost:5000/api/trusted-contacts", {
+                    credentials: "include",
+                });
+
+                if (!response.ok) {
+                    const { message } = await response.json();
+                    setError(message);
+                    return;
+                }
+
+                const data = await response.json();
+                setContacts(data);
+            } catch (err) {
+                setError("Failed to fetch trusted contacts.");
+            }
+        };
+
+        fetchContacts();
+    }, []);
+
+    const handleDelete = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/trusted-contacts/${id}`, {
+                method: "DELETE",
+                credentials: "include",
+            });
+
+            if (!response.ok) {
+                const { message } = await response.json();
+                setError(message);
+                return;
+            }
+
+            setContacts(contacts.filter((contact) => contact.id !== id));
+        } catch (err) {
+            setError("Failed to delete contact.");
+        }
+    };
+
+    if (error) {
+        return <p className="text-red-500">{error}</p>;
+    }
+
+    if (!contacts.length) {
+        return <p>No trusted contacts found.</p>;
+    }
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="min-h-screen p-6 bg-[#fff0f6] dark:bg-[#1e1e2f] text-gray-900 dark:text-gray-100"
-        >
-            <div className="flex items-center gap-3 mb-6">
-                <FaUserShield className="text-3xl text-pink-600 dark:text-pink-300" />
-                <h1 className="text-3xl font-bold text-pink-600 dark:text-pink-300">Trusted Contacts</h1>
-            </div>
-
-            <div className="space-y-4">
-                {contacts.map((contact, idx) => (
-                    <motion.div
-                        key={idx}
-                        whileHover={{ scale: 1.02 }}
-                        className="flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-xl shadow transition-shadow"
-                    >
+        <div className="p-6">
+            <h1 className="text-2xl font-bold">Trusted Contacts</h1>
+            <ul className="mt-4 space-y-2">
+                {contacts.map((contact) => (
+                    <li key={contact.id} className="p-4 bg-gray-100 rounded-lg flex justify-between items-center">
                         <div>
-                            <h2 className="text-lg font-medium">{contact.name}</h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-300">{contact.email}</p>
+                            <h2 className="text-lg font-semibold">{contact.name}</h2>
+                            <p>{contact.email}</p>
                         </div>
-                        <button className="bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600 text-sm transition">
-                            Remove
+                        <button
+                            onClick={() => handleDelete(contact.id)}
+                            className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                        >
+                            Delete
                         </button>
-                    </motion.div>
+                    </li>
                 ))}
-            </div>
-        </motion.div>
+            </ul>
+        </div>
     );
 };
 
