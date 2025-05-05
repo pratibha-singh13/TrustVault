@@ -1,10 +1,10 @@
 import express from 'express';
-import { createVault } from '../controllers/vault.controller.js';
+import { createVault, getVaultEntries } from '../controllers/vault.controller.js'; // Import getVaultEntries
 import { protectRoute } from '../middleware/auth.middleware.js';
 import { body } from 'express-validator';
 
 const router = express.Router();
-
+router.get("/", protectRoute, getVaultEntries);
 router.post(
     '/',
     protectRoute,

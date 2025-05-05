@@ -21,7 +21,7 @@ export const protectRoute = async (req, res, next) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // ✅ Update last active timestamp
+        //  Update last active timestamp
         user.lastActiveAt = Date.now();
         await user.save({ validateBeforeSave: false });
 

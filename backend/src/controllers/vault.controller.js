@@ -39,5 +39,16 @@ export const createVault = async (req, res) => {
         res.status(500).json({ message: 'Something went wrong.' });
     }
 };
+
+export const getVaultEntries = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const vaultEntries = await Vault.find({ user: userId });
+        res.status(200).json(vaultEntries);
+    } catch (error) {
+        console.error("Error fetching vault entries:", error.message);
+        res.status(500).json({ message: "Failed to fetch vault entries." });
+    }
+};
 //6803c23627ed18eea17fbb5c
 //6803c29027ed18eea17fbb60

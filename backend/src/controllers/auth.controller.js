@@ -27,7 +27,7 @@ export const signup = async (req, res) => {
         });
 
         if (newUser) {
-            // ✅ Update lastActiveAt when signing up
+            //  Update lastActiveAt when signing up
             newUser.lastActiveAt = Date.now();
 
             // generate jwt token here
@@ -63,7 +63,7 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        // ✅ Update lastActiveAt on successful login
+        // Update lastActiveAt on successful login
         user.lastActiveAt = Date.now();
         await user.save({ validateBeforeSave: false });
 

@@ -3,10 +3,7 @@ import TrustedContact from "../models/trustedContacts.model.js";
 import dotenv from "dotenv";
 dotenv.config();
 // Create a transporter using Brevo's SMTP settings
-console.log("SMTP_HOST:", process.env.SMTP_HOST);
-console.log("SMTP_LOGIN:", process.env.SMTP_LOGIN);
-console.log("SMTP_EMAIL:", process.env.SMTP_EMAIL);
-console.log("SMTP_PASSWORD:", process.env.SMTP_PASSWORD);
+
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: 587,  // Use port 587 for TLS
@@ -34,9 +31,9 @@ export const sendInactivityEmail = async (to, fullName) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`📧 Sent inactivity warning to ${to}`);
+        console.log(`Sent inactivity warning to ${to}`);
     } catch (error) {
-        console.error("❌ Error sending inactivity email:", error.message);
+        console.error("Error sending inactivity email:", error.message);
     }
 };
 
@@ -46,7 +43,7 @@ export const sendVaultReleaseEmailToTrustedContacts = async (vault, user) => {
 
     for (const contact of trustedContacts) {
         if (!contact.contactEmail || !contact.contactName) {
-            console.error(`❌ Invalid trusted contact: ${JSON.stringify(contact)}`);
+            console.error(`Invalid trusted contact: ${JSON.stringify(contact)}`);
             continue;
         }
 
@@ -64,9 +61,9 @@ export const sendVaultReleaseEmailToTrustedContacts = async (vault, user) => {
 
         try {
             await transporter.sendMail(mailOptions);
-            console.log(`📧 Vault release notification sent to ${contact.contactEmail}`);
+            console.log(`Vault release notification sent to ${contact.contactEmail}`);
         } catch (error) {
-            console.error(`❌ Error sending vault release email to ${contact.contactEmail}:`, error);
+            console.error(`Error sending vault release email to ${contact.contactEmail}:`, error);
         }
     }
 };
@@ -92,8 +89,8 @@ export const sendVaultReleaseNotificationToUser = async (user, vaults) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`📧 Sent vault release notification to ${user.email}`);
+        console.log(`Sent vault release notification to ${user.email}`);
     } catch (error) {
-        console.error(`❌ Error sending vault release notification to ${user.email}:`, error.message);
+        console.error(`Error sending vault release notification to ${user.email}:`, error.message);
     }
 };

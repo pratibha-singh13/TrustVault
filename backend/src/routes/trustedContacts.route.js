@@ -1,5 +1,5 @@
 import express from "express";
-import { addTrustedContact, getTrustedContacts } from "../controllers/trustedContacts.controller.js";
+import { addTrustedContact, getTrustedContacts, deleteTrustedContact } from "../controllers/trustedContacts.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { body } from "express-validator";
 
@@ -22,5 +22,6 @@ router.post(
 // @desc    Get all trusted contacts of the logged-in user
 // @access  Private
 router.get("/", protectRoute, getTrustedContacts);
+router.delete("/:id", protectRoute, deleteTrustedContact);
 
 export default router;
