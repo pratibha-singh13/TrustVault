@@ -2,6 +2,7 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 
+
 export const signup = async (req, res) => {
     const { fullName, email, password } = req.body;
     try {
@@ -27,9 +28,6 @@ export const signup = async (req, res) => {
         });
 
         if (newUser) {
-            //  Update lastActiveAt when signing up
-            newUser.lastActiveAt = Date.now();
-
             // generate jwt token here
             generateToken(newUser._id, res);
             await newUser.save();
@@ -63,10 +61,6 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        // Update lastActiveAt on successful login
-        user.lastActiveAt = Date.now();
-        await user.save({ validateBeforeSave: false });
-
         generateToken(user._id, res);
 
         res.status(200).json({
@@ -88,6 +82,29 @@ export const logout = (req, res) => {
     } catch (error) {
         console.log("Error in logout controller", error.message);
         res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+export const updateProfile = async (req, res) => {
+    try {
+        const { profilePic } = req.body;
+        const userId = req.user._id;
+
+        if (!profilePic) {
+            return res.status(400).json({ message: "Profile pic is required" });
+        }
+
+        const uploadResponse = await cloudinary.uploader.upload(profilePic);
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { profilePic: uploadResponse.secure_url },
+            { new: true }
+        );
+
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        console.log("error in update profile:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 

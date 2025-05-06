@@ -8,7 +8,7 @@ const Dashboard = () => {
         const fetchDashboardData = async () => {
             try {
                 const response = await fetch("http://localhost:5000/api/dashboard", {
-                    credentials: "include",
+                    credentials: "include", // Include cookies in the request
                 });
 
                 if (!response.ok) {

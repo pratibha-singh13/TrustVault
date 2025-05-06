@@ -5,16 +5,13 @@ export const getDashboardData = async (req, res) => {
     try {
         const userId = req.user.id;
 
-        // Fetch total assets (vault entries)
         const totalAssets = await Vault.countDocuments({ user: userId });
 
-        // Fetch vault size (sum of all vault content lengths)
         const vaultSize = await Vault.aggregate([
             { $match: { user: userId } },
             { $group: { _id: null, totalSize: { $sum: { $strLenCP: "$content" } } } },
         ]);
 
-        // Fetch trusted contacts count
         const trustedContacts = await TrustedContact.countDocuments({ owner: userId });
 
         res.status(200).json({
